@@ -120,6 +120,9 @@ public class Netcat extends NetcatGUI
 
         TcpServer (String port) throws IOException
         {
+            // Create a ServerSocket for listening to a client's messages
+            // out is used to send messages back to client
+            // in is used to get messages from client
             serverSocket = new ServerSocket (Integer.parseInt (port));
             socket = serverSocket.accept ();
             out = new PrintWriter (socket.getOutputStream(), true);
@@ -138,9 +141,11 @@ public class Netcat extends NetcatGUI
 
         void tx () throws IOException
         {
+            // Get text from txArea and send it to client
+            // Print to console and send to client
             String outputLine = txArea.getText ();
             System.out.println ("Sending to TCP Client > " + outputLine);
-            out.println ("From TCP Server > " + outputLine);
+            out.println (outputLine);
         }
 
         private class ButtonHandler implements ActionListener
@@ -153,14 +158,14 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
-            String fromServer;
-
+            String received;
             do
             {
-                fromServer = in.readLine ();
-                if (fromServer != null) rxArea.setText (rxArea.getText () + "\n" + fromServer);
+                // When a line is received and is not null, print it to rxArea
+                received = in.readLine ();
+                if (received != null) rxArea.setText (rxArea.getText () + "\n" + received);
             }
-            while (fromServer != null);
+            while (received != null);
         }
     }
 
@@ -173,6 +178,9 @@ public class Netcat extends NetcatGUI
 
         TcpClient (String address, String port) throws IOException
         {
+            // Create a Socket to send messages to server
+            // out is used to send messages back to server
+            // in is used to get messages from server
             socket = new Socket (address, Integer.parseInt (port));
             out = new PrintWriter (socket.getOutputStream(), true);
             in = new BufferedReader (new InputStreamReader (socket.getInputStream ()));
@@ -189,9 +197,11 @@ public class Netcat extends NetcatGUI
 
         void tx () throws IOException
         {
+            // Get text from txArea and send it to server
+            // Print to console and send to server
             String outputLine = txArea.getText ();
             System.out.println ("Sending to TCP Server > " + outputLine);
-            out.println ("From TCP Client > " + outputLine);
+            out.println (outputLine);
         }
 
         private class ButtonHandler implements ActionListener
@@ -204,16 +214,145 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
-            String fromClient;
+            String received;
+            do
+            {
+                // When a line is received and is not null, print it to rxArea
+                received = in.readLine ();
+                if (received != null) rxArea.setText (rxArea.getText () + "\n" + received);
+            }
+            while (received != null);
+        }
+    }
+
+    class UdpServer
+    {
+        DatagramSocket socket;
+        DatagramPacket packet;
+        byte[] buf;
+        InetAddress address;
+        ButtonHandler txButtonHandler;
+
+        UdpServer (String port) throws IOException
+        {
+            // Create a DatagramSocket for listening to a client's messages
+            // buf is used to send and get DatagramPackets from client
+            socket = new DatagramSocket (Integer.parseInt (port));
+            buf = new byte[256];
+
+            txButtonHandler = new ButtonHandler ();
+            sendButton.addActionListener (txButtonHandler);
+
+            rx ();
+
+            System.exit (1);
+        }
+
+        void tx () throws IOException
+        {
+            // Get text from txArea and put in in buffer
+            // Get InetAddress and remote port and send data to client
+            String outputLine = txArea.getText ();
+            //byte[] buf = new byte[256];
+            buf = outputLine.getBytes ();
+            address = InetAddress.getByName(remoteAddr);
+
+            packet = new DatagramPacket (buf, buf.length, address, Integer.parseInt (remotePort));
+            System.out.println ("Sending to UDP Client > " + outputLine);
+            socket.send (packet);
+        }
+
+        private class ButtonHandler implements ActionListener
+        {
+            public void actionPerformed (ActionEvent event) //throws IOException
+            {
+                try{tx ();} catch (IOException e){}
+            }
+        }
+
+        void rx () throws IOException
+        {
+            String received;
 
             do
             {
-                fromClient = in.readLine ();
-                if (fromClient != null) rxArea.setText (rxArea.getText () + "\n" + fromClient);
+                // When a line is received and is not null,
+                // receive DatagramPacket from client,
+                // convert to String and print it to rxArea
+                packet = new DatagramPacket (buf, buf.length);
+                socket.receive (packet);
+                received = new String (packet.getData());
+                rxArea.setText (rxArea.getText () + "\n" + received);
             }
-            while (fromClient != null);
+            while (received != null);
         }
     }
+
+    class UdpClient
+    {
+        DatagramSocket socket;
+        DatagramSocket receiveSocket;
+        DatagramPacket packet;
+        byte[] buf;
+        InetAddress address;
+        ButtonHandler txButtonHandler;
+
+        UdpClient (String address, String port) throws IOException
+        {
+            // Create a DatagramSocket for sending messages to server
+            // receiveSocket is used for listening to server's messages
+            // buf is used to get and send DatagramPackets to server
+            socket = new DatagramSocket ();
+            receiveSocket = new DatagramSocket (Integer.parseInt(localPort));
+            buf = new byte[256];
+
+            txButtonHandler = new ButtonHandler ();
+            sendButton.addActionListener (txButtonHandler);
+
+            rx ();
+
+            System.exit (1);
+        }
+
+        void tx () throws IOException
+        {
+            // Get text from txArea and put in in buffer
+            // Get InetAddress and remote port and send data to server
+            String outputLine = txArea.getText ();
+            buf = outputLine.getBytes ();
+            address = InetAddress.getByName (remoteAddr);
+
+            packet = new DatagramPacket (buf, buf.length, address, Integer.parseInt (remotePort));
+            System.out.println ("Sending to UDP Server > " + outputLine);
+            socket.send (packet);
+        }
+
+        private class ButtonHandler implements ActionListener
+        {
+            public void actionPerformed (ActionEvent event) //throws IOException
+            {
+                try{tx ();} catch (IOException e){}
+            }
+        }
+
+        void rx () throws IOException
+        {
+            String received;
+
+            do
+            {
+                // When a line is received and is not null,
+                // receive DatagramPacket from server,
+                // convert to String and print it to rxArea
+                packet = new DatagramPacket (buf, buf.length);
+                receiveSocket.receive (packet);
+                received = new String (packet.getData());
+                rxArea.setText (rxArea.getText () + "\n" + received);
+            }
+            while (received != null);
+        }
+    }
+
 
     public void run () throws IOException
     {
@@ -225,8 +364,14 @@ public class Netcat extends NetcatGUI
           System.out.println ("nc " + remoteAddr + " " + remotePort);
           new TcpClient (remoteAddr, remotePort);
         }
-        //if (role.equals ("UDP Server")) {System.out.println ("nc -u -l " + localPort);                  new UdpServer (localPort);}
-        //if (role.equals ("UDP Client")) {System.out.println ("nc -u " + remoteAddr + " " + remotePort); new UdpClient (remoteAddr, remotePort);}
+        if (role.equals ("UDP Server")) {
+          System.out.println ("nc -u -l " + localPort);
+          new UdpServer (localPort);
+        }
+        if (role.equals ("UDP Client")) {
+          System.out.println ("nc -u " + remoteAddr + " " + remotePort);
+          new UdpClient (remoteAddr, remotePort);
+        }
     }
 
     public void g ()
