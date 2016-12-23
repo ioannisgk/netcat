@@ -291,7 +291,6 @@ public class Netcat extends NetcatGUI
     class UdpClient
     {
         DatagramSocket socket;
-        DatagramSocket receiveSocket;
         DatagramPacket packet;
         byte[] buf;
         InetAddress address;
@@ -300,10 +299,8 @@ public class Netcat extends NetcatGUI
         UdpClient (String address, String port) throws IOException
         {
             // Create a DatagramSocket for sending messages to server
-            // receiveSocket is used for listening to server's messages
             // buf is used to get and send DatagramPackets to server
             socket = new DatagramSocket ();
-            receiveSocket = new DatagramSocket (Integer.parseInt(localPort));
             buf = new byte[256];
 
             txButtonHandler = new ButtonHandler ();
@@ -345,7 +342,7 @@ public class Netcat extends NetcatGUI
                 // receive DatagramPacket from server,
                 // convert to String and print it to rxArea
                 packet = new DatagramPacket (buf, buf.length);
-                receiveSocket.receive (packet);
+                socket.receive (packet);
                 received = new String (packet.getData());
                 rxArea.setText (rxArea.getText () + "\n" + received);
             }
