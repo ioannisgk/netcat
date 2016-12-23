@@ -233,6 +233,10 @@ public class Netcat extends NetcatGUI
         InetAddress address;
         ButtonHandler txButtonHandler;
 
+        // Variables that will save incoming packets info
+        InetAddress packetIp = null;
+        int packetPort;
+
         UdpServer (String port) throws IOException
         {
             // Create a DatagramSocket for listening to a client's messages
@@ -253,11 +257,9 @@ public class Netcat extends NetcatGUI
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to client
             String outputLine = txArea.getText ();
-            //byte[] buf = new byte[256];
             buf = outputLine.getBytes ();
-            address = InetAddress.getByName(remoteAddr);
 
-            packet = new DatagramPacket (buf, buf.length, address, Integer.parseInt (remotePort));
+            packet = new DatagramPacket (buf, buf.length, packetIp, packetPort);
             System.out.println ("Sending to UDP Client > " + outputLine);
             socket.send (packet);
         }
@@ -282,6 +284,11 @@ public class Netcat extends NetcatGUI
                 packet = new DatagramPacket (buf, buf.length);
                 socket.receive (packet);
                 received = new String (packet.getData());
+
+                // Get InetAddress and remote port from packets
+                packetIp = packet.getAddress ();
+				        packetPort = packet.getPort ();
+
                 rxArea.setText (rxArea.getText () + "\n" + received);
             }
             while (received != null);
