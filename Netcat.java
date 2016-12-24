@@ -233,8 +233,8 @@ public class Netcat extends NetcatGUI
     {
         DatagramSocket socket;
         DatagramPacket packet;
+        DatagramPacket receivePacket;
         byte[] buf;
-        byte[] buf2;
         InetAddress address;
         ButtonHandler txButtonHandler;
 
@@ -263,9 +263,9 @@ public class Netcat extends NetcatGUI
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to client
             String outputLine = txArea.getText ();
-            buf2 = outputLine.getBytes ();
+            buf = outputLine.getBytes ();
 
-            packet = new DatagramPacket (buf2, buf2.length, packetIp, packetPort);
+            packet = new DatagramPacket (buf, buf.length, packetIp, packetPort);
             System.out.println ("Sending to UDP Client > " + outputLine);
             socket.send (packet);
         }
@@ -281,15 +281,15 @@ public class Netcat extends NetcatGUI
         void rx () throws IOException
         {
             String received;
-
+            //buf = new byte[256];
             do
             {
                 // When a line is received and is not null,
                 // receive DatagramPacket from client,
                 // convert to String and print it to rxArea
-                packet = new DatagramPacket (buf, buf.length);
-                socket.receive (packet);
-                received = new String (packet.getData());
+                receivePacket = new DatagramPacket (buf, buf.length);
+                socket.receive (receivePacket);
+                received = new String (receivePacket.getData());
 
                 // Get InetAddress and remote port from packets
                 packetIp = packet.getAddress ();
@@ -305,7 +305,9 @@ public class Netcat extends NetcatGUI
     {
         DatagramSocket socket;
         DatagramPacket packet;
+        DatagramPacket receivePacket;
         byte[] buf;
+
         InetAddress address;
         ButtonHandler txButtonHandler;
 
@@ -349,15 +351,14 @@ public class Netcat extends NetcatGUI
         void rx () throws IOException
         {
             String received;
-
             do
             {
                 // When a line is received and is not null,
                 // receive DatagramPacket from server,
                 // convert to String and print it to rxArea
-                packet = new DatagramPacket (buf, buf.length);
-                socket.receive (packet);
-                received = new String (packet.getData());
+                receivePacket = new DatagramPacket (buf, buf.length);
+                socket.receive (receivePacket);
+                received = new String (receivePacket.getData());
                 rxArea.setText (rxArea.getText () + "\n" + received);
             }
             while (received != null);
