@@ -133,6 +133,8 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
+            in.close ();
+            out. close ();
             socket.close ();
             serverSocket.close ();
 
@@ -190,6 +192,8 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
+            in.close ();
+            out. close ();
             socket.close ();
 
             System.exit (1);
@@ -230,6 +234,7 @@ public class Netcat extends NetcatGUI
         DatagramSocket socket;
         DatagramPacket packet;
         byte[] buf;
+        byte[] buf2;
         InetAddress address;
         ButtonHandler txButtonHandler;
 
@@ -249,6 +254,7 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
+            //socket.close ();
             System.exit (1);
         }
 
@@ -257,9 +263,9 @@ public class Netcat extends NetcatGUI
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to client
             String outputLine = txArea.getText ();
-            buf = outputLine.getBytes ();
+            buf2 = outputLine.getBytes ();
 
-            packet = new DatagramPacket (buf, buf.length, packetIp, packetPort);
+            packet = new DatagramPacket (buf2, buf2.length, packetIp, packetPort);
             System.out.println ("Sending to UDP Client > " + outputLine);
             socket.send (packet);
         }
@@ -315,6 +321,7 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
+            //socket.close ();
             System.exit (1);
         }
 
