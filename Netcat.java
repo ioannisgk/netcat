@@ -235,6 +235,7 @@ public class Netcat extends NetcatGUI
         DatagramPacket packet;
         DatagramPacket receivePacket;
         byte[] buf;
+
         InetAddress address;
         ButtonHandler txButtonHandler;
 
@@ -254,7 +255,7 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
-            //socket.close ();
+            socket.close ();
             System.exit (1);
         }
 
@@ -280,9 +281,7 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
-            buf = new byte[256];
             String received;
-            //buf = new byte[256];
             do
             {
                 // When a line is received and is not null,
@@ -296,7 +295,7 @@ public class Netcat extends NetcatGUI
                 packetIp = receivePacket.getAddress ();
 				        packetPort = receivePacket.getPort ();
 
-                rxArea.setText (received);
+                rxArea.setText ("\n" + received);
             }
             while (received != null);
         }
@@ -324,7 +323,7 @@ public class Netcat extends NetcatGUI
 
             rx ();
 
-            //socket.close ();
+            socket.close ();
             System.exit (1);
         }
 
@@ -351,7 +350,6 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
-            buf = new byte[256];
             String received;
             do
             {
@@ -361,7 +359,7 @@ public class Netcat extends NetcatGUI
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
-                rxArea.setText (received);
+                rxArea.setText ("\n" + received);
             }
             while (received != null);
         }
