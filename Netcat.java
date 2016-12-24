@@ -263,7 +263,7 @@ public class Netcat extends NetcatGUI
         {
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to client
-            String outputLine = txArea.getText ();
+            String outputLine = (txArea.getText () + "\n");
             buf = outputLine.getBytes ();
 
             packet = new DatagramPacket (buf, buf.length, packetIp, packetPort);
@@ -295,7 +295,7 @@ public class Netcat extends NetcatGUI
                 packetIp = receivePacket.getAddress ();
 				        packetPort = receivePacket.getPort ();
 
-                rxArea.setText ("\n" + received);
+                rxArea.setText (rxArea.getText () + "\n" + received);
             }
             while (received != null);
         }
@@ -331,7 +331,7 @@ public class Netcat extends NetcatGUI
         {
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to server
-            String outputLine = txArea.getText ();
+            String outputLine = (txArea.getText () + "\n");
             buf = outputLine.getBytes ();
             address = InetAddress.getByName (remoteAddr);
 
@@ -359,7 +359,7 @@ public class Netcat extends NetcatGUI
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
-                rxArea.setText ("\n" + received);
+                rxArea.setText (rxArea.getText () + "\n" + received);
             }
             while (received != null);
         }
