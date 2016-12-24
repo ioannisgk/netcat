@@ -263,7 +263,7 @@ public class Netcat extends NetcatGUI
         {
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to client
-            String outputLine = (txArea.getText () + "\n");
+            String outputLine = txArea.getText ();
             buf = outputLine.getBytes ();
 
             packet = new DatagramPacket (buf, buf.length, packetIp, packetPort);
@@ -282,11 +282,13 @@ public class Netcat extends NetcatGUI
         void rx () throws IOException
         {
             String received;
+            byte[] buf = new byte[256];
             do
             {
                 // When a line is received and is not null,
                 // receive DatagramPacket from client,
                 // convert to String and print it to rxArea
+                for (int i = 0; i < 256; i ++) buf[i] = 0;
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
@@ -331,7 +333,7 @@ public class Netcat extends NetcatGUI
         {
             // Get text from txArea and put in in buffer
             // Get InetAddress and remote port and send data to server
-            String outputLine = (txArea.getText () + "\n");
+            String outputLine = txArea.getText ();
             buf = outputLine.getBytes ();
             address = InetAddress.getByName (remoteAddr);
 
@@ -351,11 +353,13 @@ public class Netcat extends NetcatGUI
         void rx () throws IOException
         {
             String received;
+            byte[] buf = new byte[256];
             do
             {
                 // When a line is received and is not null,
                 // receive DatagramPacket from server,
                 // convert to String and print it to rxArea
+                for (int i = 0; i < 256; i++) buf[i] = 0;
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
