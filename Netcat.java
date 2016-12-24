@@ -280,6 +280,7 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
+            buf = new byte[256];
             String received;
             //buf = new byte[256];
             do
@@ -292,10 +293,10 @@ public class Netcat extends NetcatGUI
                 received = new String (receivePacket.getData());
 
                 // Get InetAddress and remote port from packets
-                packetIp = packet.getAddress ();
-				        packetPort = packet.getPort ();
+                packetIp = receivePacket.getAddress ();
+				        packetPort = receivePacket.getPort ();
 
-                rxArea.setText (rxArea.getText () + "\n" + received);
+                rxArea.setText (received);
             }
             while (received != null);
         }
@@ -350,6 +351,7 @@ public class Netcat extends NetcatGUI
 
         void rx () throws IOException
         {
+            buf = new byte[256];
             String received;
             do
             {
@@ -359,7 +361,7 @@ public class Netcat extends NetcatGUI
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
-                rxArea.setText (rxArea.getText () + "\n" + received);
+                rxArea.setText (received);
             }
             while (received != null);
         }
