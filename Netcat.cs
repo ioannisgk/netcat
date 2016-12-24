@@ -15,6 +15,7 @@ namespace Netcat
 {
     public partial class Form1 : Form
     {
+        bool toggle = true;
         delegate void SetTextCallback(string text);
 
         private void SetText(string text)
@@ -26,7 +27,7 @@ namespace Netcat
             }
             else
             {
-                this.textBox1.Text = this.textBox1.Text + text;
+                this.textBox1.Text = this.textBox1.Text + "\r\n" + text;
             }
         }
 
@@ -71,13 +72,13 @@ namespace Netcat
       
             void rx()
             {
-                String fromServer;
+                String fromClient;
                 do
                 {
-                    fromServer = sr.ReadLine();
-                    if (fromServer != null) f (fromServer); 
+                    fromClient = sr.ReadLine();
+                    if (fromClient != null) f (fromClient); 
                 }
-                while (fromServer != null);
+                while (fromClient != null);
 
                 System.Environment.Exit(0);
             }
@@ -116,6 +117,7 @@ namespace Netcat
                 String toClient;
                 toClient = t2.Text;
                 if (toClient != null) sw.WriteLine(toClient);
+
             }
 
             void rx()
@@ -143,8 +145,6 @@ namespace Netcat
 
             public WncUdpServer(ref Button bt, ref TextBox tb1, ref TextBox tb2, String localPort, SetTextCallback ff)
             {
-
-                ip = "127.0.0.1";
                 port = int.Parse(localPort);
                 client = new UdpClient(port);
 
@@ -169,17 +169,16 @@ namespace Netcat
             void rx()
             {
                 IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                //client.Client.Bind(RemoteIpEndPoint);
 
-                String fromServer;
+                String fromClient;
                 do
                 {
-                    fromServer = Encoding.ASCII.GetString(client.Receive(ref RemoteIpEndPoint));
+                    fromClient = Encoding.ASCII.GetString(client.Receive(ref RemoteIpEndPoint));
                     ip = RemoteIpEndPoint.Address + "";
                     port = RemoteIpEndPoint.Port;
-                    if (fromServer != null) f(fromServer);
+                    if (fromClient != null) f(fromClient);
                 }
-                while (fromServer != null);
+                while (fromClient != null);
 
                 System.Environment.Exit(0);
             }
@@ -245,7 +244,10 @@ namespace Netcat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            WncTcpServer s;
+            if (toggle) button1.Text = "Stop";
+            else button1.Text = "Start";
+            toggle = !toggle;
+
             if (listBox1.SelectedIndex == 0) new WncTcpServer(ref button2, ref textBox1, ref textBox2, textBox5.Text, SetText);
             if (listBox1.SelectedIndex == 1) new WncTcpClient(ref button2, ref textBox1, ref textBox2, textBox3.Text, textBox4.Text, SetText);
             if (listBox1.SelectedIndex == 2) new WncUdpServer(ref button2, ref textBox1, ref textBox2, textBox5.Text, SetText);
@@ -254,7 +256,7 @@ namespace Netcat
 
         private void button2_Click(object sender, EventArgs e)
         {
-            //textBox1.Text = "Connected";
+            
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
