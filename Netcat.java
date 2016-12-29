@@ -20,8 +20,8 @@ class NetcatGUI extends JFrame
         container = getContentPane ();
         container.setLayout (new FlowLayout());
 
-        txArea = new JTextArea (6, 40);
-        rxArea = new JTextArea (6, 40);
+        txArea = new JTextArea (16, 40);
+        rxArea = new JTextArea (16, 40);
         rxArea.setEditable (false);
         pane = new JScrollPane (rxArea);
 
@@ -62,13 +62,13 @@ public class Netcat extends NetcatGUI
 
             startButton = new JButton ("Start");
 
-            container.add (new JLabel ("                                                       "));
+            container.add (new JLabel ("                                                            "));
             container.add (netcatRole);
-            container.add (new JLabel ("Remote IP:"));
+            container.add (new JLabel ("                   Remote IP:"));
             container.add (remoteIPTextField);
-            container.add (new JLabel ("Remote Port:"));
+            container.add (new JLabel ("               Remote Port:"));
             container.add (remotePortTextField);
-            container.add (new JLabel ("Local Port:"));
+            container.add (new JLabel ("                   Local Port:"));
             container.add (localPortTextField);
             container.add (startButton);
         }
@@ -120,9 +120,6 @@ public class Netcat extends NetcatGUI
 
         TcpServer (String port) throws IOException
         {
-            // Create a ServerSocket for listening to a client's messages
-            // out is used to send messages back to client
-            // in is used to get messages from client
             serverSocket = new ServerSocket (Integer.parseInt (port));
             socket = serverSocket.accept ();
             out = new PrintWriter (socket.getOutputStream(), true);
@@ -138,13 +135,11 @@ public class Netcat extends NetcatGUI
             socket.close ();
             serverSocket.close ();
 
-            System.exit (1);
+            //System.exit (1);
         }
 
         void tx () throws IOException
         {
-            // Get text from txArea and send it to client
-            // Print to console and send to client
             String outputLine = txArea.getText ();
             System.out.println ("Sending to TCP Client > " + outputLine);
             out.println (outputLine);
@@ -152,7 +147,7 @@ public class Netcat extends NetcatGUI
 
         private class ButtonHandler implements ActionListener
         {
-            public void actionPerformed (ActionEvent event) //throws IOException
+            public void actionPerformed (ActionEvent event)
             {
                 try{tx ();} catch (IOException e){}
             }
@@ -163,7 +158,6 @@ public class Netcat extends NetcatGUI
             String received;
             do
             {
-                // When a line is received and is not null, print it to rxArea
                 received = in.readLine ();
                 if (received != null) rxArea.setText (rxArea.getText () + "\n" + received);
             }
@@ -180,9 +174,6 @@ public class Netcat extends NetcatGUI
 
         TcpClient (String address, String port) throws IOException
         {
-            // Create a Socket to send messages to server
-            // out is used to send messages back to server
-            // in is used to get messages from server
             socket = new Socket (address, Integer.parseInt (port));
             out = new PrintWriter (socket.getOutputStream(), true);
             in = new BufferedReader (new InputStreamReader (socket.getInputStream ()));
@@ -196,13 +187,11 @@ public class Netcat extends NetcatGUI
             out. close ();
             socket.close ();
 
-            System.exit (1);
+            //System.exit (1);
         }
 
         void tx () throws IOException
         {
-            // Get text from txArea and send it to server
-            // Print to console and send to server
             String outputLine = txArea.getText ();
             System.out.println ("Sending to TCP Server > " + outputLine);
             out.println (outputLine);
@@ -210,7 +199,7 @@ public class Netcat extends NetcatGUI
 
         private class ButtonHandler implements ActionListener
         {
-            public void actionPerformed (ActionEvent event) //throws IOException
+            public void actionPerformed (ActionEvent event)
             {
                 try{tx ();} catch (IOException e){}
             }
@@ -221,7 +210,6 @@ public class Netcat extends NetcatGUI
             String received;
             do
             {
-                // When a line is received and is not null, print it to rxArea
                 received = in.readLine ();
                 if (received != null) rxArea.setText (rxArea.getText () + "\n" + received);
             }
@@ -239,14 +227,11 @@ public class Netcat extends NetcatGUI
         InetAddress address;
         ButtonHandler txButtonHandler;
 
-        // Variables that will save incoming packets info
         InetAddress packetIp = null;
         int packetPort;
 
         UdpServer (String port) throws IOException
         {
-            // Create a DatagramSocket for listening to a client's messages
-            // buf is used to send and get DatagramPackets from client
             socket = new DatagramSocket (Integer.parseInt (port));
             buf = new byte[256];
 
@@ -261,8 +246,6 @@ public class Netcat extends NetcatGUI
 
         void tx () throws IOException
         {
-            // Get text from txArea and put in in buffer
-            // Get InetAddress and remote port and send data to client
             String outputLine = txArea.getText ();
             buf = outputLine.getBytes ();
 
@@ -273,7 +256,7 @@ public class Netcat extends NetcatGUI
 
         private class ButtonHandler implements ActionListener
         {
-            public void actionPerformed (ActionEvent event) //throws IOException
+            public void actionPerformed (ActionEvent event)
             {
                 try{tx ();} catch (IOException e){}
             }
@@ -285,15 +268,11 @@ public class Netcat extends NetcatGUI
             byte[] buf = new byte[256];
             do
             {
-                // When a line is received and is not null,
-                // receive DatagramPacket from client,
-                // convert to String and print it to rxArea
                 for (int i = 0; i < 256; i ++) buf[i] = 0;
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
                 received = new String (receivePacket.getData());
 
-                // Get InetAddress and remote port from packets
                 packetIp = receivePacket.getAddress ();
 				        packetPort = receivePacket.getPort ();
 
@@ -315,8 +294,6 @@ public class Netcat extends NetcatGUI
 
         UdpClient (String address, String port) throws IOException
         {
-            // Create a DatagramSocket for sending messages to server
-            // buf is used to get and send DatagramPackets to server
             socket = new DatagramSocket ();
             buf = new byte[256];
 
@@ -331,8 +308,6 @@ public class Netcat extends NetcatGUI
 
         void tx () throws IOException
         {
-            // Get text from txArea and put in in buffer
-            // Get InetAddress and remote port and send data to server
             String outputLine = txArea.getText ();
             buf = outputLine.getBytes ();
             address = InetAddress.getByName (remoteAddr);
@@ -344,7 +319,7 @@ public class Netcat extends NetcatGUI
 
         private class ButtonHandler implements ActionListener
         {
-            public void actionPerformed (ActionEvent event) //throws IOException
+            public void actionPerformed (ActionEvent event)
             {
                 try{tx ();} catch (IOException e){}
             }
@@ -356,9 +331,6 @@ public class Netcat extends NetcatGUI
             byte[] buf = new byte[256];
             do
             {
-                // When a line is received and is not null,
-                // receive DatagramPacket from server,
-                // convert to String and print it to rxArea
                 for (int i = 0; i < 256; i++) buf[i] = 0;
                 receivePacket = new DatagramPacket (buf, buf.length);
                 socket.receive (receivePacket);
@@ -394,7 +366,7 @@ public class Netcat extends NetcatGUI
     {
         NetcatStartup p = new NetcatStartup ("Netcat Connection");
 
-        p.setSize(new Dimension (550,280));
+        p.setSize(new Dimension (500,600));
         p.setVisible (true);
         p.run ();
         p.dispose ();
@@ -406,7 +378,7 @@ public class Netcat extends NetcatGUI
 
         f.g();
 
-        f.setSize(new Dimension (550,280));
+        f.setSize(new Dimension (500,600));
         f.setVisible (true);
         f.run ();
     }
