@@ -80,7 +80,7 @@ namespace Netcat
                 }
                 while (fromClient != null);
 
-                System.Environment.Exit(0);
+                //////System.Environment.Exit(0);
             }
         }
 
@@ -130,7 +130,7 @@ namespace Netcat
                 }
                 while (fromServer != null);
 
-                System.Environment.Exit(0);
+                //System.Environment.Exit(0);
             }
         }
 
